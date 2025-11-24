@@ -1,6 +1,6 @@
 # School Clearance System
 
-A simple web-based school clearance system with a React frontend and an Express.js + MySQL backend. The app supports student registration, department clearance workflows, PDF certificate generation, and email notifications.
+A simple web-based school clearance system with a React frontend and an Express.js + MySQL backend. The app supports student registration, department clearance workflows, PDF certificate generation, and email notifications. The purpose is to automate the school clearance system.
 
 ## Features
 
@@ -31,7 +31,7 @@ A simple web-based school clearance system with a React frontend and an Express.
 
 - Node.js (v18+ recommended)
 - npm
-- MySQL server
+- MySQL-server
 
 ## Environment
 
@@ -47,7 +47,6 @@ EMAIL_USER=your_email@example.com
 EMAIL_PASS=your_email_password_or_app_password
 APP_ORIGIN=http://localhost:3000
 PORT=5000
-```
 
 Consider creating a `server/.env.example` with the same keys (without real values) for onboarding.
 
@@ -63,8 +62,8 @@ Run the SQL scripts in `server/sql/schema.sql` to create the database schema. Us
 cd server
 npm install
 # create .env as above
-npm run dev
-```
+npm run dev.
+
 
 2. Install client dependencies and start the frontend:
 
