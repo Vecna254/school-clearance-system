@@ -97,7 +97,3 @@ Feel free to open issues or submit pull requests. Add tests and documentation fo
 - Backend entrypoint: `server/server.js`
 - API routes: `server/routes/*.js`
 - Frontend entry: `client/src/index.js` and `client/src/App.js`
-
----
-Generated README for quick onboarding. Update as the project evolves.
-This is the READ ME file.
