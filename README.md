@@ -62,8 +62,9 @@ Run the SQL scripts in `server/sql/schema.sql` to create the database schema. Us
 cd server
 npm install
 # create .env as above
-npm start.
-![Frontend](./images/Backend.jpeg)
+npm start
+```
+![Backend](./images/Backend.jpeg)
 
 
 2. Install client dependencies and start the frontend:
