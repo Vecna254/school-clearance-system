@@ -1,3 +1,4 @@
+//services/auth.js
 import api from "./api"
 
 export const login = async (email, password) => {

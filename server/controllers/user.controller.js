@@ -1,3 +1,4 @@
+//user.controller.js
 import { listUsers } from "../models/user.model.js"
 
 export async function getUsers(req, res) {

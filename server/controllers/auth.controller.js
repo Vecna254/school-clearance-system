@@ -1,3 +1,4 @@
+//auth.controller.js
 import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
 import { env } from "../config/env.js"
@@ -47,4 +48,7 @@ export async function registerStudent(req, res) {
   const token = sign(user)
   delete user.password_hash
   res.status(201).json({ token, user })
+
+  
+ 
 }

@@ -1,3 +1,4 @@
+//user.routes.js
 import { Router } from "express"
 import { auth } from "../middleware/auth.js"
 import { getUsers } from "../controllers/user.controller.js"
