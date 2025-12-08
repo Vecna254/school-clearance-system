@@ -56,13 +56,14 @@ Run the SQL scripts in `server/sql/schema.sql` to create the database schema. Us
 
 ## Setup & Run (development)
 
-1. Install server dependencies and start the server:
+1. Install server dependencies and start the server(backend):
 
 ```bash
 cd server
 npm install
 # create .env as above
-npm run dev.
+npm start.
+![Frontend](./images/Backend.jpeg)
 
 
 2. Install client dependencies and start the frontend:
@@ -72,6 +73,7 @@ cd ../client
 npm install
 npm start
 ```
+![Frontend](./images/frontend.jpeg)
 
 The frontend defaults to `http://localhost:3000` and the server to `http://localhost:5000` (adjust `APP_ORIGIN` in `.env` as needed).
 

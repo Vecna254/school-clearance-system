@@ -1,3 +1,4 @@
+//auth.js
 import jwt from "jsonwebtoken"
 import { env } from "../config/env.js"
 
@@ -14,4 +15,5 @@ export function auth(req, res, next) {
   } catch (err) {
     return res.status(401).json({ message: "Invalid token" })
   }
+  
 }
