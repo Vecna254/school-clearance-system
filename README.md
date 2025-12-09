@@ -63,7 +63,8 @@ cd server
 npm install
 # create .env as above
 npm start.
-![Frontend](./images/Backend.jpeg)
+```
+![Backend](./images/Backend.jpeg)
 
 
 2. Install client dependencies and start the frontend:
