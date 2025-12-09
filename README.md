@@ -62,7 +62,7 @@ Run the SQL scripts in `server/sql/schema.sql` to create the database schema. Us
 cd server
 npm install
 # create .env as above
-npm start
+npm start.
 ```
 ![Backend](./images/Backend.jpeg)
 
