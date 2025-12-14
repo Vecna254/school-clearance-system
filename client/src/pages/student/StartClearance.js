@@ -1,7 +1,14 @@
-import { Link } from "react-router-dom"
+//StartClearance.js..
+"use client"
+
+import { Link, useNavigate } from "react-router-dom"
 import styled from "styled-components"
+import { useEffect, useState } from "react"
 import Card from "../../components/Card"
 import Button from "../../components/Button"
+import api from "../../services/api"
+
+// ... existing styles ...
 
 const Container = styled.div`
   max-width: 900px;
@@ -129,6 +136,53 @@ const ModernButton = styled(Button)`
 `
 
 export default function StartClearance() {
+  const navigate = useNavigate()
+  const [loading, setLoading] = useState(true)
+  const [hasActive, setHasActive] = useState(false)
+
+  useEffect(() => {
+    ;(async () => {
+      try {
+        const { data } = await api.get("/clearance/my-latest")
+        if (data?.id && data?.status !== "rejected") {
+          setHasActive(true)
+        }
+      } catch (error) {
+        console.error("Error checking clearance status:", error)
+      } finally {
+        setLoading(false)
+      }
+    })()
+  }, [])
+
+  if (loading) {
+    return (
+      <Container>
+        <ContentCard>
+          <div style={{ textAlign: "center", padding: "2rem" }}>Loading...</div>
+        </ContentCard>
+      </Container>
+    )
+  }
+
+  if (hasActive) {
+    return (
+      <Container>
+        <ContentCard>
+          <div style={{ textAlign: "center", padding: "2rem" }}>
+            <h3 style={{ color: "#64748b", marginBottom: "1rem" }}>You Already Have an Active Clearance</h3>
+            <p style={{ color: "#94a3b8", marginBottom: "2rem" }}>
+              You can view your status and progress on the My Status page.
+            </p>
+            <Link to="/student/status">
+              <ModernButton size="lg">View My Status</ModernButton>
+            </Link>
+          </div>
+        </ContentCard>
+      </Container>
+    )
+  }
+
   return (
     <Container>
       <HeroCard>

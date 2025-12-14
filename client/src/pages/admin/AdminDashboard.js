@@ -1,3 +1,4 @@
+//AdminDashboard.js...
 "use client"
 
 import { useEffect, useState } from "react"
@@ -187,7 +188,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState({
     total: 0,
     completed: 0,
-    pending: 0,
+    in_progress: 0,
     awaitingFinal: 0,
   })
 
@@ -206,7 +207,7 @@ export default function AdminDashboard() {
       setStats({
         total: data.length,
         completed: data.filter((item) => item.status === "completed").length,
-        pending: data.filter((item) => item.status === "pending").length,
+        in_progress: data.filter((item) => item.status === "in_progress").length,
         awaitingFinal: awaitingFinalApproval.length,
       })
     } catch (error) {
@@ -268,7 +269,7 @@ export default function AdminDashboard() {
           <span className="stat-label">Completed</span>
         </StatCard>
         <StatCard>
-          <span className="stat-number">{stats.pending}</span>
+          <span className="stat-number">{stats.in_progress}</span>
           <span className="stat-label">In Progress</span>
         </StatCard>
         <StatCard>

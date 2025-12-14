@@ -1,3 +1,4 @@
+//DeptStudentReview.js..
 "use client"
 
 import { useEffect, useState } from "react"
@@ -42,6 +43,40 @@ const StudentHeader = styled.div`
     border-radius: 20px;
     display: inline-block;
     font-weight: 600;
+  }
+`
+
+const StudentInfoGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 32px;
+  
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+`
+
+const InfoCard = styled.div`
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 12px;
+  border-left: 4px solid #3b82f6;
+  
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+  
+  .value {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e293b;
   }
 `
 
@@ -162,6 +197,7 @@ export default function DeptStudentReview() {
       remarks,
       has_dues,
       dues_amount,
+      user_id: item?.cleared_by_user_id,
     })
     nav("/department/dashboard")
   }
@@ -183,9 +219,30 @@ export default function DeptStudentReview() {
         <div className="department">{item.department_name}</div>
       </StudentHeader>
 
+      <StudentInfoGrid>
+        <InfoCard>
+          <label>Clearance Reason</label>
+          <div className="value">{item.reason || "N/A"}</div>
+        </InfoCard>
+        <InfoCard>
+          <label>Request Status</label>
+          <div className="value" style={{ textTransform: "capitalize" }}>
+            {item.clearance_status || "N/A"}
+          </div>
+        </InfoCard>
+        <InfoCard>
+          <label>Requested On</label>
+          <div className="value">{item.submitted_at ? new Date(item.submitted_at).toLocaleDateString() : "N/A"}</div>
+        </InfoCard>
+        <InfoCard>
+          <label>Current Review Status</label>
+          <StatusBadge status={status}>{status}</StatusBadge>
+        </InfoCard>
+      </StudentInfoGrid>
+
       <Card>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
-          <h2 style={{ margin: 0 }}>Review Clearance</h2>
+          <h2 style={{ margin: 0 }}>Department Decision</h2>
           <StatusBadge status={status}>{status}</StatusBadge>
         </div>
 

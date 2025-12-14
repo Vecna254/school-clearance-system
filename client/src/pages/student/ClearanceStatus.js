@@ -1,3 +1,4 @@
+//ClearanceStatus.js...
 "use client"
 
 import { useEffect, useState } from "react"
@@ -275,7 +276,7 @@ export default function ClearanceStatus() {
             <h4>🎓 Awaiting Final Approval</h4>
             <p>
               Congratulations! All departments have cleared you. Your clearance is now awaiting final approval from the
-              Principal.
+              Admin.
             </p>
           </AlertCard>
         )}
