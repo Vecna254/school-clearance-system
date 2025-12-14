@@ -1,3 +1,4 @@
+//clearance.model.js..
 import { pool } from "../config/db.js"
 
 export async function startClearance(studentId, admission_number, reason, reason_other) {
@@ -82,7 +83,7 @@ export async function updateDepartmentDecisionAndCheckStatus(stepId, payload) {
     const newStatus = await checkAndUpdateClearanceStatus(connection, clearanceId)
 
     await connection.commit()
-    console.log(`[v0] EVENT-DRIVEN: Successfully updated clearance ${clearanceId} to status: ${newStatus}`)
+    console.log(`[v0] EVENT-DRIVEN: ✅ Successfully updated clearance ${clearanceId} to status: ${newStatus}`)
 
     return newStatus
   } catch (error) {
@@ -95,8 +96,10 @@ export async function updateDepartmentDecisionAndCheckStatus(stepId, payload) {
 }
 
 export async function checkAndUpdateClearanceStatus(connection, clearanceId) {
+  const queryConnection = connection || pool
+
   // Get current status counts
-  const [[stats]] = await connection.query(
+  const [[stats]] = await queryConnection.query(
     `SELECT 
       SUM(CASE WHEN status='cleared' THEN 1 ELSE 0 END) AS cleared_count,
       SUM(CASE WHEN status='rejected' THEN 1 ELSE 0 END) AS rejected_count,
@@ -124,10 +127,10 @@ export async function checkAndUpdateClearanceStatus(connection, clearanceId) {
   }
 
   // Get current status to avoid unnecessary updates
-  const [[current]] = await connection.query("SELECT status FROM clearance_requests WHERE id = ?", [clearanceId])
+  const [[current]] = await queryConnection.query("SELECT status FROM clearance_requests WHERE id = ?", [clearanceId])
 
   if (current.status !== newStatus) {
-    await connection.query("UPDATE clearance_requests SET status = ? WHERE id = ?", [newStatus, clearanceId])
+    await queryConnection.query("UPDATE clearance_requests SET status = ? WHERE id = ?", [newStatus, clearanceId])
     console.log(
       `[v0] EVENT-DRIVEN: ✅ STATUS CHANGED: '${current.status}' → '${newStatus}' for clearance ${clearanceId}`,
     )
@@ -199,8 +202,7 @@ export async function reportDepartmentSummary() {
 export async function fixAwaitingFinalStatus() {
   console.log("[v0] Checking for clearances that should be awaiting_final...")
 
-  const [clearances] = await pool.query(`
-    SELECT cr.id, cr.status, cr.admission_number,
+  const [clearances] = await pool.query(`SELECT cr.id, cr.status, cr.admission_number,
            SUM(dc.status='cleared') AS cleared_count,
            SUM(dc.status='rejected') AS rejected_count,
            COUNT(dc.id) AS total_count
@@ -208,8 +210,7 @@ export async function fixAwaitingFinalStatus() {
     JOIN department_clearances dc ON dc.clearance_request_id = cr.id
     WHERE cr.status = 'in_progress'
     GROUP BY cr.id, cr.status, cr.admission_number
-    HAVING rejected_count = 0 AND cleared_count = total_count
-  `)
+    HAVING rejected_count = 0 AND cleared_count = total_count`)
 
   console.log(`[v0] Found ${clearances.length} clearances that should be awaiting_final`)
 

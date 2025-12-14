@@ -1,6 +1,8 @@
+//Downloads.js..
 "use client"
 
 import { useEffect, useState } from "react"
+import { Link } from "react-router-dom"
 import Card from "../../components/Card"
 import Button from "../../components/Button"
 import api from "../../services/api"
@@ -18,7 +20,11 @@ const StatusCard = styled(Card)`
   background: ${({ status }) =>
     status === "completed"
       ? "linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)"
-      : "linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)"};
+      : status === "awaiting_final"
+        ? "linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)"
+        : status === "in_progress"
+          ? "linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)"
+          : "linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)"};
   
   .icon {
     font-size: 4rem;
@@ -26,12 +32,26 @@ const StatusCard = styled(Card)`
   }
   
   h2 {
-    color: ${({ status }) => (status === "completed" ? "#065f46" : "#92400e")};
+    color: ${({ status }) =>
+      status === "completed"
+        ? "#065f46"
+        : status === "awaiting_final"
+          ? "#92400e"
+          : status === "in_progress"
+            ? "#1e3a8a"
+            : "#7f1d1d"};
     margin-bottom: 16px;
   }
   
   p {
-    color: ${({ status }) => (status === "completed" ? "#047857" : "#78350f")};
+    color: ${({ status }) =>
+      status === "completed"
+        ? "#047857"
+        : status === "awaiting_final"
+          ? "#78350f"
+          : status === "in_progress"
+            ? "#1e40af"
+            : "#991b1b"};
     font-size: 1.125rem;
     margin-bottom: 24px;
   }
@@ -92,6 +112,18 @@ const LoadingCard = styled(Card)`
   }
 `
 
+const ModernButton = styled(Button)`
+  padding: 12px 24px;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+  }
+`
+
 export default function Downloads() {
   const [latest, setLatest] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -142,32 +174,78 @@ export default function Downloads() {
     )
   }
 
-  if (!latest) {
+  if (!latest || !latest.id) {
     return (
       <DownloadsContainer>
-        <StatusCard>
+        <StatusCard status="new">
           <div className="icon">📋</div>
-          <h2>No Clearance Found</h2>
+          <h2>No Clearance Started Yet</h2>
           <p>You haven't started the clearance process yet.</p>
-          <Button size="lg">Start Clearance Process</Button>
+          <Link to="/student/start">
+            <ModernButton size="lg" style={{ backgroundColor: "#ef4444", color: "white" }}>
+              🚀 Start Your Clearance
+            </ModernButton>
+          </Link>
         </StatusCard>
       </DownloadsContainer>
     )
   }
 
-  if (latest.status !== "completed") {
+  if (latest.status === "in_progress") {
     return (
       <DownloadsContainer>
-        <StatusCard status="pending">
+        <StatusCard status="in_progress">
           <div className="icon">⏳</div>
           <h2>Clearance In Progress</h2>
-          <p>Your clearance is still being processed by the departments.</p>
+          <p>Your clearance is currently being processed by all departments.</p>
           <p style={{ fontSize: "1rem", opacity: 0.8 }}>
-            Current Status: <strong>{latest.status}</strong>
+            Progress:{" "}
+            <strong>
+              {latest.departments?.filter((d) => d.status === "cleared").length || 0}/{latest.departments?.length || 0}{" "}
+              departments cleared
+            </strong>
           </p>
-          <Button variant="secondary" size="lg">
-            Check Status
-          </Button>
+          <Link to="/student/status">
+            <ModernButton size="lg" style={{ backgroundColor: "#3b82f6", color: "white" }}>
+              📊 View Detailed Status
+            </ModernButton>
+          </Link>
+        </StatusCard>
+      </DownloadsContainer>
+    )
+  }
+
+  if (latest.status === "awaiting_final") {
+    return (
+      <DownloadsContainer>
+        <StatusCard status="awaiting_final">
+          <div className="icon">⏳</div>
+          <h2>Awaiting Final Approval</h2>
+          <p>All departments have cleared you! Your clearance is now awaiting final approval from the Principal.</p>
+          <Link to="/student/status">
+            <ModernButton size="lg" style={{ backgroundColor: "#f59e0b", color: "white" }}>
+              📊 View Status
+            </ModernButton>
+          </Link>
+        </StatusCard>
+      </DownloadsContainer>
+    )
+  }
+
+  if (latest.status === "rejected") {
+    return (
+      <DownloadsContainer>
+        <StatusCard status="rejected">
+          <div className="icon">❌</div>
+          <h2>Clearance Rejected</h2>
+          <p>
+            Your clearance request was rejected by one or more departments. Please review the feedback and resubmit.
+          </p>
+          <Link to="/student/start">
+            <ModernButton size="lg" style={{ backgroundColor: "#ef4444", color: "white" }}>
+              🔄 Start New Clearance
+            </ModernButton>
+          </Link>
         </StatusCard>
       </DownloadsContainer>
     )
@@ -194,7 +272,7 @@ export default function Downloads() {
       <StatusCard status="completed">
         <div className="icon">🎉</div>
         <h2>Clearance Completed!</h2>
-        <p>Congratulations! Your clearance has been approved by all departments.</p>
+        <p>Congratulations! Your clearance has been approved by all departments and the Principal.</p>
       </StatusCard>
 
       <CertificatePreview>
@@ -207,9 +285,14 @@ export default function Downloads() {
       </CertificatePreview>
 
       <div style={{ textAlign: "center" }}>
-        <Button onClick={download} size="lg" disabled={downloading} style={{ minWidth: "200px" }}>
+        <ModernButton
+          onClick={download}
+          size="lg"
+          disabled={downloading}
+          style={{ minWidth: "200px", backgroundColor: "#10b981", color: "white" }}
+        >
           {downloading ? "Downloading..." : "📥 Download PDF Certificate"}
-        </Button>
+        </ModernButton>
       </div>
     </DownloadsContainer>
   )

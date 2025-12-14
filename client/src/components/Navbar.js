@@ -1,9 +1,12 @@
+//Navbar.js..
 "use client"
 
 import styled from "styled-components"
 import { Link, useNavigate, useLocation } from "react-router-dom"
 import Button from "./Button"
 import { clearToken, clearUser, getUser } from "../services/storage"
+import { useEffect, useState } from "react"
+import api from "../services/api"
 
 const Bar = styled.header`
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
@@ -118,6 +121,25 @@ export default function Navbar() {
   const navigate = useNavigate()
   const location = useLocation()
   const user = getUser()
+  const [studentStatus, setStudentStatus] = useState(null)
+  const [loadingStatus, setLoadingStatus] = useState(true)
+
+  useEffect(() => {
+    ;(async () => {
+      if (user?.role === "student") {
+        try {
+          const { data } = await api.get("/clearance/my-latest")
+          setStudentStatus(data?.status)
+        } catch (error) {
+          console.error("Error fetching student status:", error)
+        } finally {
+          setLoadingStatus(false)
+        }
+      } else {
+        setLoadingStatus(false)
+      }
+    })()
+  }, [user])
 
   const logout = () => {
     clearToken()
@@ -150,11 +172,13 @@ export default function Navbar() {
                 <div className="user-badge">{user.role}</div>
               </UserInfo>
 
-              {user.role === "student" && (
+              {user.role === "student" && !loadingStatus && (
                 <>
-                  <NavLink to="/student/start" className={isActive("/student/start") ? "active" : ""}>
-                    Start Clearance
-                  </NavLink>
+                  {!studentStatus || studentStatus === "rejected" ? (
+                    <NavLink to="/student/start" className={isActive("/student/start") ? "active" : ""}>
+                      Start Clearance
+                    </NavLink>
+                  ) : null}
                   <NavLink to="/student/status" className={isActive("/student/status") ? "active" : ""}>
                     My Status
                   </NavLink>
