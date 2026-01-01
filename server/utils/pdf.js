@@ -3,34 +3,35 @@ import PDFDocument from "pdfkit"
 export function createCertificatePDFStream({ student, cr, steps }) {
   const doc = new PDFDocument({ size: "A4", margin: 50 })
 
-  let currentY = 60
+  let currentY = 70 // Increased from 60
 
   // Header with school name and logo space
-  doc.fontSize(20).font("Helvetica-Bold").text("UNIVERSITY/SCHOOL NAME", 50, currentY, { align: "center" })
-  currentY += 25
+  doc.fontSize(20).font("Helvetica-Bold").text("NAME OF THE INSTITUTION", 50, currentY, { align: "center" })
+  currentY += 30 // Increased from 25
 
-  doc.fontSize(14).font("Helvetica").text("OFFICE OF THE REGISTRAR", 50, currentY, { align: "center" })
-  currentY += 30
+  doc.fontSize(16).font("Helvetica").text("OFFICE OF THE REGISTRAR", 50, currentY, { align: "center" })
+  currentY += 35 // Increased from 30
 
   // Certificate title
   doc.fontSize(18).font("Helvetica-Bold").text("CLEARANCE CERTIFICATE", 50, currentY, { align: "center" })
-  currentY += 35
+  currentY += 40 // Increased from 35
 
   // Certificate body
-  doc.fontSize(11).font("Helvetica").text("This is to certify that:", 50, currentY, { align: "center" })
-  currentY += 25
+  doc.fontSize(14).font("Helvetica").text("This is to certify that:", 50, currentY, { align: "center" })
+  currentY += 30 // Increased from 25
 
-  // Student details in a box
-  doc.rect(60, currentY, 475, 60).stroke()
+  // Student details in a box - MAKE BOX TALLER
+  const boxHeight = 70 // Increased from 60
+  doc.rect(60, currentY, 475, boxHeight).stroke()
 
+  doc
+    .fontSize(14)
+    .font("Helvetica-Bold")
+    .text(`STUDENT NAME: ${student.full_name}`, 80, currentY + 15) // Increased +10 to +15
   doc
     .fontSize(12)
-    .font("Helvetica-Bold")
-    .text(`STUDENT NAME: ${student.full_name}`, 80, currentY + 10)
-  doc
-    .fontSize(10)
     .font("Helvetica")
-    .text(`ADMISSION NUMBER: ${student.admission_number}`, 80, currentY + 25)
+    .text(`ADMISSION NUMBER: ${student.admission_number}`, 80, currentY + 35) // Increased +25 to +35
     .text(
       `COMPLETION DATE: ${new Date(cr.final_approved_at).toLocaleDateString("en-US", {
         year: "numeric",
@@ -38,67 +39,84 @@ export function createCertificatePDFStream({ student, cr, steps }) {
         day: "numeric",
       })}`,
       80,
-      currentY + 40,
+      currentY + 55, // Increased +40 to +55
     )
 
-  currentY += 80
+  currentY += boxHeight + 20 // Increased spacing after box
 
   // Clearance statement
   doc
-    .fontSize(10)
+    .fontSize(12)
     .font("Helvetica")
     .text("Has successfully completed all clearance requirements from the following departments:", 60, currentY)
-  currentY += 20
+  currentY += 25 // Increased from 20
 
-  // Department statuses in a compact table format
-  doc.fontSize(9).font("Helvetica-Bold")
-  doc.text("DEPARTMENT", 80, currentY).text("STATUS", 280, currentY).text("REMARKS", 380, currentY)
+  // Department statuses table - NEED MORE VERTICAL SPACE
+  doc.fontSize(11).font("Helvetica-Bold")
+  doc.text("DEPARTMENT", 80, currentY)
+  doc.text("STATUS", 280, currentY)
+  doc.text("REMARKS", 380, currentY)
 
   doc
-    .moveTo(80, currentY + 12)
-    .lineTo(515, currentY + 12)
+    .moveTo(80, currentY + 15) // Increased from +12
+    .lineTo(515, currentY + 15)
     .stroke()
-  currentY += 20
+  currentY += 25 // Increased from 20
 
-  doc.font("Helvetica")
+  doc.font("Helvetica").fontSize(10)
   const maxDepartments = Math.min(steps.length, 10)
   for (let i = 0; i < maxDepartments; i++) {
     const s = steps[i]
     doc
-      .text(s.name, 80, currentY)
+      .text(s.name, 80, currentY, { width: 180 }) // Added width constraint
       .text(s.status.toUpperCase(), 280, currentY)
-      .text(s.remarks || "Cleared successfully", 380, currentY, { width: 100 })
-    currentY += 15
+      .text(s.remarks || "Cleared successfully", 380, currentY, { 
+        width: 140, // Increased from 130
+        lineGap: 4 
+      })
+    currentY += 20 // Increased from 16-18 to 20
   }
 
-  currentY += 20
+  currentY += 25 // Increased from 20
 
-  // Official statement - more compact
+  // Official statement - FIXED TEXT OVERLAP
+  doc
+    .fontSize(12)
+    .font("Helvetica")
+    .text("This certificate confirms that the above-named student has fulfilled all institutional", 60, currentY, {
+      width: 475 // ADDED width constraint
+    })
+  currentY += 16 // Increased from 14
+  doc.text("requirements and is cleared for graduation/completion.", 60, currentY, {
+    width: 475 // ADDED width constraint
+  })
+  currentY += 40 // Increased from 30
+
+  // Signature section
+  doc.fontSize(11)
+  doc.text("_________________________________", 80, currentY)
+  doc.text("PRINCIPAL/REGISTRAR", 80, currentY + 20) // Increased from +15
+  doc.text("Name: _________________________", 80, currentY + 40) // Increased from +30
+  doc.text(`Date: ${new Date().toLocaleDateString()}`, 80, currentY + 60) // Increased from +45
+
+  // Official stamp area - moved down
+  doc.rect(350, currentY, 200, 70).stroke() // Moved down
+  
+  doc.fontSize(9).text("OFFICIAL STAMP", 450, currentY + 40, { align: "center" }) // Adjusted position
+
+  // Footer - moved further down
+  const footerY = Math.min(currentY + 100, 750) // Increased from +80
   doc
     .fontSize(10)
-    .font("Helvetica")
-    .text("This certificate confirms that the above-named student has fulfilled all institutional", 60, currentY)
-  currentY += 12
-  doc.text("requirements and is cleared for graduation/completion.", 60, currentY)
-  currentY += 30
-
-  // Signature section - side by side to save space
-  doc.text("_________________________________", 80, currentY)
-  doc.text("PRINCIPAL/REGISTRAR", 80, currentY + 15)
-  doc.text("Name: _________________________", 80, currentY + 30)
-  doc.text(`Date: ${new Date().toLocaleDateString()}`, 80, currentY + 45)
-
-  // Official stamp area - positioned to the right
-  doc.rect(350, currentY - 5, 120, 65).stroke()
-  doc.fontSize(9).text("OFFICIAL STAMP", 370, currentY + 20, { align: "center" })
-
-  // Footer - positioned at bottom but within page bounds
-  const footerY = Math.min(currentY + 80, 750)
-  doc
-    .fontSize(8)
     .font("Helvetica-Oblique")
-    .text("This is an official document generated by the School Clearance System", 60, footerY, { align: "center" })
-    .text(`Certificate ID: CL-${cr.id}-${new Date().getFullYear()}`, 60, footerY + 10, { align: "center" })
+    .text("This is an official document generated by the School Clearance System", 60, footerY, { 
+      align: "center",
+      width: 475 
+    })
+    .text(`Certificate ID: CL-${cr.id}-${new Date().getFullYear()}`, 60, footerY + 15, { // Increased from +12
+      align: "center",
+      width: 475 
+    })
 
   return doc
 }

@@ -83,7 +83,7 @@ const AlertCard = styled.div`
         ? "#856404"
         : variant === "error"
           ? "#721c24"
-          : "#495057"};
+      : "#495057"};
 
   h4 {
     margin: 0 0 ${({ theme }) => theme.spacing(2)} 0;
@@ -113,52 +113,57 @@ const ModernButton = styled(Button)`
   }
 `
 
-const DepartmentGrid = styled.div`
-  display: grid;
-  gap: ${({ theme }) => theme.spacing(3)};
+const DepartmentTable = styled.table`
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
   margin-top: ${({ theme }) => theme.spacing(4)};
+  border-radius: ${({ theme }) => theme.radius};
+  overflow: hidden;
+  box-shadow: ${({ theme }) => theme.shadow.md};
 `
 
-const DepartmentCard = styled.div`
-  padding: ${({ theme }) => theme.spacing(4)};
-  border: 2px solid ${({ status, theme }) =>
-    status === "cleared" ? theme.colors.success : status === "rejected" ? theme.colors.danger : theme.colors.border};
-  border-radius: ${({ theme }) => theme.radius};
+const TableHeader = styled.th`
+  text-align: left;
+  padding: ${({ theme }) => theme.spacing(3)};
+  background: ${({ theme }) => theme.colors.gray[50]};
+  border-bottom: 2px solid ${({ theme }) => theme.colors.border};
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.gray[700]};
+  
+  &:first-child {
+    border-top-left-radius: ${({ theme }) => theme.radius};
+  }
+  
+  &:last-child {
+    border-top-right-radius: ${({ theme }) => theme.radius};
+  }
+`
+
+const TableRow = styled.tr`
   background: ${({ status, theme }) =>
-    status === "cleared" ? "#f0fdf4" : status === "rejected" ? "#fef2f2" : "#ffffff"};
-  transition: all 0.3s ease;
-
+    status === "cleared" ? "#f0fdf4" : status === "rejected" ? "#fef2f2" : "white"};
+  
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: ${({ theme }) => theme.shadow.md};
+    background: ${({ status, theme }) =>
+      status === "cleared" ? "#e6f7eb" : status === "rejected" ? "#fee5e5" : theme.colors.gray[50]};
   }
+`
 
-  .department-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: ${({ theme }) => theme.spacing(2)};
+const TableCell = styled.td`
+  padding: ${({ theme }) => theme.spacing(3)};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  vertical-align: top;
+  word-wrap: break-word;
+  word-break: break-word;
+  
+  &:first-child {
+    border-left: 2px solid ${({ status, theme }) =>
+      status === "cleared" ? theme.colors.success : status === "rejected" ? theme.colors.danger : "transparent"};
   }
-
-  .department-name {
-    font-size: 1.125rem;
-    font-weight: 700;
-    color: ${({ theme }) => theme.colors.text};
-  }
-
-  .department-details {
-    font-size: 0.875rem;
-    color: ${({ theme }) => theme.colors.gray[600]};
-    line-height: 1.5;
-  }
-
-  .dues-info {
-    margin-top: ${({ theme }) => theme.spacing(2)};
-    padding: ${({ theme }) => theme.spacing(2)};
-    background: ${({ theme }) => theme.colors.gray[50]};
-    border-radius: ${({ theme }) => theme.radius};
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.danger};
+  
+  &:last-child {
+    max-width: 300px;
   }
 `
 
@@ -305,24 +310,35 @@ export default function ClearanceStatus() {
       {clearance.departments && (
         <StatusCard>
           <h3 style={{ marginBottom: "1.5rem", color: "#1e293b" }}>Department Status Details</h3>
-          <DepartmentGrid>
-            {clearance.departments.map((dept) => (
-              <DepartmentCard key={dept.id} status={dept.status}>
-                <div className="department-header">
-                  <span className="department-name">{dept.department_name}</span>
-                  <StatusBadge status={dept.status} />
-                </div>
-                {dept.remarks && (
-                  <div className="department-details">
-                    <strong>Remarks:</strong> {dept.remarks}
-                  </div>
-                )}
-                {dept.has_dues && (
-                  <div className="dues-info">💰 Outstanding Dues: KSh {dept.dues_amount?.toLocaleString()}</div>
-                )}
-              </DepartmentCard>
-            ))}
-          </DepartmentGrid>
+          <DepartmentTable>
+            <thead>
+              <tr>
+                <TableHeader>Department</TableHeader>
+                <TableHeader>Status</TableHeader>
+                <TableHeader>Remarks</TableHeader>
+              </tr>
+            </thead>
+            <tbody>
+              {clearance.departments.map((dept) => (
+                <TableRow key={dept.id} status={dept.status}>
+                  <TableCell status={dept.status}>
+                    {dept.department_name}
+                    {dept.has_dues && (
+                      <div style={{ marginTop: "0.5rem", fontSize: "0.875rem", color: "#dc2626" }}>
+                        💰 Outstanding Dues: KSh {dept.dues_amount?.toLocaleString()}
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell status={dept.status}>
+                    <StatusBadge status={dept.status} />
+                  </TableCell>
+                  <TableCell status={dept.status}>
+                    {dept.remarks || "—"}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </tbody>
+          </DepartmentTable>
         </StatusCard>
       )}
     </StatusContainer>
