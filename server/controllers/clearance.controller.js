@@ -25,6 +25,7 @@ export async function myLatest(req, res) {
   res.json(latest || {})
 }
 
+//clearance request
 export async function approveFinal(req, res) {
   const { id } = req.params
   const [[cr]] = await pool.query("SELECT * FROM clearance_requests WHERE id = ?", [id])
