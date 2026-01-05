@@ -26,6 +26,7 @@ export async function login(req, res) {
   res.json({ token, user })
 }
 
+//registration
 export async function registerStudent(req, res) {
   const { full_name, admission_number, kcse_year, class_form, stream, phone, email, password } = req.body
   const hash = await bcrypt.hash(password, 10)
